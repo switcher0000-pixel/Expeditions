@@ -98,6 +98,7 @@ namespace Expeditions.UI
             CalculatedStyle dimensions = base.GetDimensions();
             Vector2 pos = dimensions.Position();
             Vector2 size = new Vector2(dimensions.Width, dimensions.Height);
+            int range = _maxValue - _minValue;
 
             //draw track
             float relativeWidth = size.X / (_widthRange + 18f);
@@ -106,9 +107,16 @@ namespace Expeditions.UI
             spriteBatch.Draw(bar, trackRectangle, barColour);
 
             //Draw blips
-            for (int i = 0; i <= _maxValue - _minValue; i++)
+            if (range <= 0)
             {
-                float spacing = (_widthRange / (_maxValue - _minValue));
+                Rectangle sliderRectangle = new Rectangle((int)pos.X, (int)(pos.Y - 2), 18, (int)size.Y + 4);
+                spriteBatch.Draw(slider, sliderRectangle, Color.White);
+                return;
+            }
+
+            for (int i = 0; i <= range; i++)
+            {
+                float spacing = (_widthRange / range);
                 float xPos = (spacing * i);
                 xPos = xPos * relativeWidth;
 
@@ -124,16 +132,16 @@ namespace Expeditions.UI
             //draw slider
             if (_dragging)
             {
-                float spacing = (_widthRange / (_maxValue - _minValue));
+                float spacing = (_widthRange / range);
                 float val = (float)_dragVal - 9f;
                 float xVal = val / spacing;
-                _index = (int)Math.Round(xVal, 0, MidpointRounding.AwayFromZero);
+                _index = _minValue + (int)Math.Round(xVal, 0, MidpointRounding.AwayFromZero);
                 if (_index < _minValue) _index = _minValue;
                 if (_index > _maxValue) _index = _maxValue;
             }
 
-            float spacing2 = (_widthRange / (_maxValue - _minValue));
-            float xPos2 = (spacing2 * _index);
+            float spacing2 = (_widthRange / range);
+            float xPos2 = (spacing2 * (_index - _minValue));
             xPos2 = xPos2 * relativeWidth;
 
             Rectangle sliderRectangle = new Rectangle((int)(pos.X + xPos2), (int)(pos.Y - 2), 18, (int)size.Y + 4);
