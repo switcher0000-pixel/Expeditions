@@ -207,14 +207,17 @@ namespace Expeditions
         private void AppendCategoryButtonsLine1(float x, float y)
         {
             UIElement uIElement = new UIElement();
-            uIElement.Width.Set(0f, 1f);
+            // Only make container as wide as needed (4 buttons × 36px = 144px) instead of full width
+            uIElement.Width.Set(144f, 0f);
             uIElement.Height.Set(32f, 0f);
+            uIElement.Left.Set(x, 0f);
             uIElement.Top.Set(y, 0f);
             var texture = ModContent.Request<Texture2D>("Terraria/Images/UI/Achievement_Categories", AssetRequestMode.ImmediateLoad);
             for (int j = 0; j < 4; j++)
             {
                 UIToggleImage uIToggleImage = new UIToggleImage(texture, 32, 32, new Point(34 * j, 0), new Point(34 * j, 34));
-                uIToggleImage.Left.Set((float)(j * 36 + x), 0f);
+                // Position relative to container now, not panel
+                uIToggleImage.Left.Set((float)(j * 36), 0f);
                 uIToggleImage.SetState(true);
                 uIToggleImage.OnLeftClick += new UIElement.MouseEvent(this.FilterList);
                 this._categoryButtons.Add(uIToggleImage);
@@ -225,14 +228,17 @@ namespace Expeditions
         private void AppendCategoryButtonsLine2(float x, float y)
         {
             UIElement uIElement = new UIElement();
-            uIElement.Width.Set(0f, 1f);
+            // Only make container as wide as needed (4 buttons × 36px = 144px) instead of full width
+            uIElement.Width.Set(144f, 0f);
             uIElement.Height.Set(32f, 0f);
+            uIElement.Left.Set(x, 0f);
             uIElement.Top.Set(y, 0f);
             Asset<Texture2D> texture = Expeditions.sortingTexture;
             for (int j = 0; j < 4; j++)
             {
                 UIToggleImage uIToggleImage = new UIToggleImage(texture, 32, 32, new Point(34 * j, 0), new Point(34 * j, 34));
-                uIToggleImage.Left.Set((float)(j * 36 + x), 0f);
+                // Position relative to container now, not panel
+                uIToggleImage.Left.Set((float)(j * 36), 0f);
                 uIToggleImage.SetState(false); //These are disabled by default
                 if (j == 2)
                 {
