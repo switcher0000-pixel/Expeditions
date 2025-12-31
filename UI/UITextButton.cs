@@ -67,6 +67,11 @@ namespace Expeditions.UI
             base.LeftMouseDown(evt);
         }
 
+        public override void LeftClick(UIMouseEvent evt)
+        {
+            base.LeftClick(evt);
+        }
+
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             base.DrawSelf(spriteBatch);

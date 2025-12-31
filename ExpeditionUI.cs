@@ -174,7 +174,7 @@ namespace Expeditions
             UITextButton textButton = new UITextButton(text, 1, false);
             textButton.Left.Set(x, 0f);
             textButton.Top.Set(y, 0f);
-            textButton.OnLeftMouseDown += evt;
+            textButton.OnLeftClick += evt;
             _navigationPanel.Append(textButton);
         }
         private UITextButton AppendTextButtonPan2(string text, float x, float y, MouseEvent evt)
@@ -182,7 +182,7 @@ namespace Expeditions
             UITextButton textButton = new UITextButton(text, 1, false);
             textButton.Left.Set(x, 0f);
             textButton.Top.Set(y, 0f);
-            textButton.OnLeftMouseDown += evt;
+            textButton.OnLeftClick += evt;
             _expeditionPanel.Append(textButton);
             return textButton;
         }
