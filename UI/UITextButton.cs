@@ -54,14 +54,11 @@ namespace Expeditions.UI
         {
             base.MouseOver(evt);
             SoundEngine.PlaySound(SoundID.MenuTick);
-            Recalculate();
             _isOn = true;
         }
         public override void MouseOut(UIMouseEvent evt)
         {
-            base.MouseOver(evt);
-            SoundEngine.PlaySound(SoundID.MenuTick);
-            Recalculate();
+            base.MouseOut(evt);
             _isOn = false;
         }
 
