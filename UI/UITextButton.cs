@@ -72,6 +72,20 @@ namespace Expeditions.UI
             base.LeftClick(evt);
         }
 
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+
+            // Manual click detection workaround for tModLoader 1.4 UserInterface bug
+            // See: https://github.com/tModLoader/tModLoader/issues/1930
+            if (IsMouseHovering && Main.mouseLeft && Main.mouseLeftRelease)
+            {
+                // Manually trigger the click event
+                LeftClick(new UIMouseEvent(this, Main.MouseScreen));
+                SoundEngine.PlaySound(SoundID.MenuTick);
+            }
+        }
+
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             base.DrawSelf(spriteBatch);
