@@ -46,8 +46,14 @@ namespace Expeditions.UI
             this._textScale = textScale;
             this._textSize = vector;
             this._isLarge = large;
-            this.MinWidth.Set(vector.X + this.PaddingLeft + this.PaddingRight, 0f);
-            this.MinHeight.Set(vector.Y + this.PaddingTop + this.PaddingBottom, 0f);
+
+            // Set both Min and actual dimensions for proper hit testing
+            float width = vector.X + this.PaddingLeft + this.PaddingRight;
+            float height = vector.Y + this.PaddingTop + this.PaddingBottom;
+            this.MinWidth.Set(width, 0f);
+            this.MinHeight.Set(height, 0f);
+            this.Width.Set(width, 0f);
+            this.Height.Set(height, 0f);
         }
 
         public override void MouseOver(UIMouseEvent evt)
