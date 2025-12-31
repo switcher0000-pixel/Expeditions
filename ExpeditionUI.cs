@@ -686,11 +686,15 @@ namespace Expeditions
             _navigationPanel.Top.Set(newPos.Y - 4 - _navigationPanel.Height.Pixels, 0);
         }
 
+        public override void Update(GameTime gameTime)
+        {
+            // Keep layout in sync before input processing.
+            UpdateIndex();
+            base.Update(gameTime);
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
-            // constantly check while open
-            UpdateIndex();
-
             // draw category mouse text
             base.Draw(spriteBatch);
             CategoryButtonMouseText(spriteBatch);
