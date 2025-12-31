@@ -109,8 +109,8 @@ namespace Expeditions.UI
             //Draw blips
             if (range <= 0)
             {
-                Rectangle sliderRectangle = new Rectangle((int)pos.X, (int)(pos.Y - 2), 18, (int)size.Y + 4);
-                spriteBatch.Draw(slider, sliderRectangle, Color.White);
+                Rectangle sliderFallbackRectangle = new Rectangle((int)pos.X, (int)(pos.Y - 2), 18, (int)size.Y + 4);
+                spriteBatch.Draw(slider, sliderFallbackRectangle, Color.White);
                 return;
             }
 
