@@ -72,17 +72,31 @@ namespace Expeditions.UI
             base.LeftClick(evt);
         }
 
+        private bool _wasMouseDown = false;
+
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
 
             // Manual click detection workaround for tModLoader 1.4 UserInterface bug
             // See: https://github.com/tModLoader/tModLoader/issues/1930
-            if (IsMouseHovering && Main.mouseLeft && Main.mouseLeftRelease)
+            if (IsMouseHovering)
             {
-                // Manually trigger the click event
-                LeftClick(new UIMouseEvent(this, Main.MouseScreen));
-                SoundEngine.PlaySound(SoundID.MenuTick);
+                // Prevent player from using items when hovering button
+                Main.LocalPlayer.mouseInterface = true;
+
+                // Detect click on release (like standard button behavior)
+                if (_wasMouseDown && !Main.mouseLeft)
+                {
+                    // Manually trigger the click event
+                    LeftClick(new UIMouseEvent(this, Main.MouseScreen));
+                    SoundEngine.PlaySound(SoundID.MenuTick);
+                }
+                _wasMouseDown = Main.mouseLeft;
+            }
+            else
+            {
+                _wasMouseDown = false;
             }
         }
 
