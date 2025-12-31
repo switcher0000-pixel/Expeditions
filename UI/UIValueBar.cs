@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.UI;
 
 namespace Expeditions.UI
@@ -11,9 +12,9 @@ namespace Expeditions.UI
     {
         private static Color barColour = new Color(43, 56, 101, 200);
 
-        Texture2D bar = Main.colorBarTexture;
-        Texture2D blip = Main.colorBlipTexture;
-        Texture2D slider = Main.colorSliderTexture; //80 range with offset 3
+        Texture2D bar = TextureAssets.MagicPixel.Value;
+        Texture2D blip = TextureAssets.MagicPixel.Value;
+        Texture2D slider = TextureAssets.MagicPixel.Value; //80 range with offset 3
 
         private List<Color> _blipColourList;
 
@@ -61,14 +62,14 @@ namespace Expeditions.UI
             _blipColourList = new List<Color>();
         }
 
-        public override void MouseDown(UIMouseEvent evt)
+        public override void LeftMouseDown(UIMouseEvent evt)
         {
-            base.MouseDown(evt);
+            base.LeftMouseDown(evt);
             _dragging = true;
         }
-        public override void MouseUp(UIMouseEvent evt)
+        public override void LeftMouseUp(UIMouseEvent evt)
         {
-            base.MouseUp(evt);
+            base.LeftMouseUp(evt);
             _dragging = false;
         }
 
@@ -81,9 +82,14 @@ namespace Expeditions.UI
             }
             _dailyColour = daily;
         }
-        public void SetBlipColours(Color[] colours)
+
+        public override void Update(GameTime gameTime)
         {
-            SetBlipColours(colours, -1);
+            if (_dragging && ContainsPoint(Main.MouseScreen))
+            {
+                _dragVal = (int)Main.MouseScreen.X - (int)GetDimensions().X;
+            }
+            base.Update(gameTime);
         }
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
@@ -91,35 +97,49 @@ namespace Expeditions.UI
             base.DrawSelf(spriteBatch);
             CalculatedStyle dimensions = base.GetDimensions();
             Vector2 pos = dimensions.Position();
+            Vector2 size = new Vector2(dimensions.Width, dimensions.Height);
 
-            // Draw bar
-            spriteBatch.Draw(bar, pos + new Vector2(0f, 4f), bar.Bounds, barColour);
+            //draw track
+            float relativeWidth = size.X / (_widthRange + 18f);
+            int roundWidth = (int)(_widthRange * relativeWidth);
+            Rectangle trackRectangle = new Rectangle((int)pos.X, (int)pos.Y, roundWidth + 18, (int)size.Y);
+            spriteBatch.Draw(bar, trackRectangle, barColour);
 
-            // Draw blips on bar
-            int range = _maxValue - _minValue;
-            Color c;
-            for (int i = 0; i < range + 1; i++)
+            //Draw blips
+            for (int i = 0; i <= _maxValue - _minValue; i++)
             {
-                try { c = _blipColourList[i]; }
-                catch { c = Color.LightSlateGray; }
-                if (i == _dailyColour && _dailyColour >= 0) c = UIColour.Expert;
-                spriteBatch.Draw(blip, pos + new Vector2(8f + (160f / range) * i, 8f), blip.Bounds, c);
+                float spacing = (_widthRange / (_maxValue - _minValue));
+                float xPos = (spacing * i);
+                xPos = xPos * relativeWidth;
+
+                Color blipColour = Color.White;
+                if (_blipColourList.Count > i) { blipColour = _blipColourList[i]; }
+
+                if (i == _dailyColour) blipColour = new Color(150, 80, 200);
+
+                Rectangle blipRectangle = new Rectangle((int)(pos.X + xPos + 3), (int)pos.Y, 12, (int)size.Y);
+                spriteBatch.Draw(blip, blipRectangle, blipColour);
             }
 
+            //draw slider
+            if (_dragging)
+            {
+                float spacing = (_widthRange / (_maxValue - _minValue));
+                float val = (float)_dragVal - 9f;
+                float xVal = val / spacing;
+                _index = (int)Math.Round(xVal, 0, MidpointRounding.AwayFromZero);
+                if (_index < _minValue) _index = _minValue;
+                if (_index > _maxValue) _index = _maxValue;
+            }
 
-            // set to mouse
-            if (_dragging) _dragVal = (int)(Main.mouseX - pos.X - 10);
+            float spacing2 = (_widthRange / (_maxValue - _minValue));
+            float xPos2 = (spacing2 * _index);
+            xPos2 = xPos2 * relativeWidth;
 
-            // limit slider to bar
-            _dragVal = (int)Math.Max(Math.Min(_widthRange, _dragVal), 0f);
-
-            //Set index to rounded position of dragVal in relation to range and distance across width
-            _lastIndex = _index;
-            if (_dragging) _index = (int)((0.5f + _minValue) + range * _dragVal / _widthRange);
-
-            // Draw Slider
-            spriteBatch.Draw(slider, pos + new Vector2(3f + _dragVal, 0f), slider.Bounds, Color.White);
-            _dragVal = (int)(_widthRange / range * (_index - _minValue));
+            Rectangle sliderRectangle = new Rectangle((int)(pos.X + xPos2), (int)(pos.Y - 2), 18, (int)size.Y + 4);
+            spriteBatch.Draw(slider, sliderRectangle, Color.White);
         }
+
+        public event MouseEvent OnMouseUp;
     }
 }

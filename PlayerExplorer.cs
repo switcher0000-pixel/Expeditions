@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
@@ -32,16 +33,15 @@ namespace Expeditions
         // v9.0.1 bug calls this method in multiplayer
         public override void Initialize()
         {
-            itemContains = new bool[Main.itemTexture.Length];
+            itemContains = new bool[ItemID.Count];
         }
 
         // Called on exiting world and on death
-        public override TagCompound Save()
+        public override void SaveData(TagCompound tag)
         {
             if (Expeditions.DEBUG) Main.NewText("Expeditions PE: Saving...");
 
-            //the tag to save
-            TagCompound tag = new TagCompound();
+            //the tag to save (passed as parameter now)
 
             // Get the current expedition list
             List<ModExpedition> expeditions = Expeditions.GetExpeditionsList();
@@ -55,8 +55,8 @@ namespace Expeditions
             bool discardUnknowns = Main.keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.OemQuotes);
 
             List<ProgressData> saveData = new List<ProgressData>();
-            
-            if (Expeditions.DEBUG) svmsg += "\n" + player.name + " : Save";
+
+            if (Expeditions.DEBUG) svmsg += "\n" + Player.name + " : Save";
             if (!resetProgress && expeditions != null)
             {
                 // Save expedition progress
@@ -79,7 +79,7 @@ namespace Expeditions
                     ConvertProgressToTag(tag, saveData);
                 }catch(Exception e)
                 {
-                    ErrorLogger.Log("Expeditions: " + e.ToString());
+                    ModContent.GetInstance<Expeditions>().Logger.Info("Expeditions: " + e.ToString());
                 }
             }
 
@@ -92,7 +92,6 @@ namespace Expeditions
             }
 
             if (Expeditions.DEBUG) Main.NewText("Expeditions PE: Save complete, expeditions cleared");
-            return tag;
         }
 
         private static void ConvertProgressToTag(TagCompound tag, List<ProgressData> saveData)
@@ -122,10 +121,10 @@ namespace Expeditions
         }
 
         // Called at player select screen
-        public override void Load(TagCompound tag)
+        public override void LoadData(TagCompound tag)
         {
             if (Expeditions.DEBUG) Main.NewText("Expeditions PE: Loading...");
-            if (Expeditions.DEBUG) svmsg += "\n" + player.name + " : Load";
+            if (Expeditions.DEBUG) svmsg += "\n" + Player.name + " : Load";
 
             List<ProgressData> progress = ConvertTagToProgress(tag);
 
@@ -193,9 +192,9 @@ namespace Expeditions
         
         internal void CopyLocalExpeditionsToMain()
         {
-            if (Main.netMode != 2 && player.whoAmI == Main.myPlayer)
+            if (Main.netMode != 2 && Player.whoAmI == Main.myPlayer)
             {
-                if (Expeditions.DEBUG) { dbgmsg += "\n" + player.name + " set Expeditions"; }
+                if (Expeditions.DEBUG) { dbgmsg += "\n" + Player.name + " set Expeditions"; }
                 Expeditions.ResetExpeditions();
                 if (_savedProgressList != null)
                 {
@@ -220,7 +219,7 @@ namespace Expeditions
             }
         }
 
-        public override void OnEnterWorld(Player player)
+        public override void OnEnterWorld()
         {
             if (Expeditions.DEBUG) Main.NewText("Expeditions: Enter World");
             if (Main.netMode != 2)
@@ -240,28 +239,28 @@ namespace Expeditions
 
         internal void RequestDailyQuest()
         {
-            Expeditions.SendNet_GetDaily(mod, player.whoAmI);
+            Expeditions.SendNet_GetDaily(Mod, Player.whoAmI);
         }
 
         #endregion
 
         public override void ResetEffects()
         {
-            if (player.whoAmI == Main.myPlayer)
+            if (Player.whoAmI == Main.myPlayer)
             {
                 // Reset item contains
-                itemContains = new bool[Main.itemTexture.Length];
-                foreach (Item item in player.inventory)
+                itemContains = new bool[ItemLoader.ItemCount];
+                foreach (Item item in Player.inventory)
                 {
                     if (item == null) continue;
                     itemContains[item.type] = true;
                 }
-                foreach (Item item in player.armor)
+                foreach (Item item in Player.armor)
                 {
                     if (item == null) continue;
                     itemContains[item.type] = true;
                 }
-                foreach (Item item in player.miscEquips)
+                foreach (Item item in Player.miscEquips)
                 {
                     if (item == null) continue;
                     itemContains[item.type] = true;
@@ -271,13 +270,13 @@ namespace Expeditions
 
         public override void PostUpdate()
         {
-            if (player.whoAmI == Main.myPlayer)
+            if (Player.whoAmI == Main.myPlayer)
             {
                 if (ExpeditionUI.visible && ExpeditionUI.viewMode == ExpeditionUI.viewMode_Tile)
                 {
                     Rectangle tileRange = new Rectangle(
-                        (int)(player.Center.X - (float)(Player.tileRangeX * 16)),
-                        (int)(player.Center.Y - (float)(Player.tileRangeY * 16)),
+                        (int)(Player.Center.X - (float)(Player.tileRangeX * 16)),
+                        (int)(Player.Center.Y - (float)(Player.tileRangeY * 16)),
                         Player.tileRangeX * 16 * 2,
                         Player.tileRangeY * 16 * 2);
                     Rectangle boardRect = new Rectangle(
@@ -294,16 +293,16 @@ namespace Expeditions
                 }
             }
             /*
-            if (player.controlDown)
+            if (Player.controlDown)
             {
-                Main.NewText(player.HeldItem.name + " is rarity: " + player.HeldItem.rare);
+                Main.NewText(Player.HeldItem.name + " is rarity: " + Player.HeldItem.rare);
             }
             */
         }
 
-        public override void OnHitByNPC(NPC npc, int damage, bool crit)
+        public override void OnHitByNPC(NPC npc, Player.HurtInfo hurtInfo)
         {
-            if (player.whoAmI != Main.myPlayer) return;
+            if (Player.whoAmI != Main.myPlayer) return;
             foreach (ModExpedition me in Expeditions.GetExpeditionsList())
             {
                 me.OnCombatWithNPC(npc, true, Main.LocalPlayer,

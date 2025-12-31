@@ -2,6 +2,9 @@
 using Microsoft.Xna.Framework;
 using ReLogic.Graphics;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
+using Terraria.ID;
 using Terraria.UI;
 
 namespace Expeditions.UI
@@ -37,7 +40,7 @@ namespace Expeditions.UI
         }
         public void SetText(string text, float textScale, bool large)
         {
-            DynamicSpriteFont spriteFont = large ? Main.fontDeathText : Main.fontMouseText;
+            DynamicSpriteFont spriteFont = large ? FontAssets.DeathText.Value : FontAssets.MouseText.Value;
             Vector2 vector = new Vector2(spriteFont.MeasureString(text).X, large ? 32f : 16f) * textScale;
             this._text = text;
             this._textScale = textScale;
@@ -50,14 +53,14 @@ namespace Expeditions.UI
         public override void MouseOver(UIMouseEvent evt)
         {
             base.MouseOver(evt);
-            Main.PlaySound(12, -1, -1, 1);
+            SoundEngine.PlaySound(SoundID.MenuTick);
             Recalculate();
             _isOn = true;
         }
         public override void MouseOut(UIMouseEvent evt)
         {
             base.MouseOver(evt);
-            Main.PlaySound(12, -1, -1, 1);
+            SoundEngine.PlaySound(SoundID.MenuTick);
             Recalculate();
             _isOn = false;
         }
@@ -67,7 +70,7 @@ namespace Expeditions.UI
             base.DrawSelf(spriteBatch);
             CalculatedStyle dimensions = base.GetDimensions();
             Vector2 pos = dimensions.Position();
-            Vector2 size = Main.fontMouseText.MeasureString(_text);
+            Vector2 size = FontAssets.MouseText.Value.MeasureString(_text);
 
             if (this._isLarge)
             {
@@ -86,7 +89,7 @@ namespace Expeditions.UI
                 Utils.DrawBorderStringBig(spriteBatch, this._text, pos + scaleCentre, textColor, textScale, scaleCentre.X, scaleCentre.Y, -1);
                 return;
             }
-            Utils.DrawBorderStringFourWay(spriteBatch, Main.fontMouseText, this._text, pos.X + scaleCentre.X, pos.Y + scaleCentre.Y,
+            Utils.DrawBorderStringFourWay(spriteBatch, FontAssets.MouseText.Value, this._text, pos.X + scaleCentre.X, pos.Y + scaleCentre.Y,
                 textColor, Color.Black, scaleCentre, textScale);
         }
     }

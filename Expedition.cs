@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Localization;
@@ -435,7 +436,7 @@ namespace Expeditions
                     if (Expeditions.DEBUG) Main.NewText("#sending");
                     // Send net message and return early without running the rest of the code
                     Expeditions.SendNet_PartyComplete(
-                        this.mex.mod,
+                        this.mex.Mod,
                         Main.LocalPlayer.team,
                         this.mex);
                     return;
@@ -487,12 +488,12 @@ namespace Expeditions
 
             if (Expeditions.DEBUG) Main.NewText("#compelte quest");
             //complete this
-            Main.PlaySound(24, -1, -1, 1);
+            SoundEngine.PlaySound(SoundID.MenuTick);
             if (!repeatable || (repeatable && !completed))
             {
                 Main.NewText("Expeditions: '" + name + "' completed!", textColour.R, textColour.G, textColour.B);
                 Player p = Main.LocalPlayer;
-                Projectile.NewProjectile(p.Center, new Vector2(0f, -6f), ProjectileID.RocketFireworkBlue, 0, 0f, p.whoAmI);
+                Projectile.NewProjectile(p.GetSource_Misc("ExpeditionComplete"), p.Center, new Vector2(0f, -6f), ProjectileID.RocketFireworkBlue, 0, 0f, p.whoAmI);
                 TrackerUI.recentChangeTick = TrackerUI.ChangeTickMax;
             }
             else
@@ -573,7 +574,7 @@ namespace Expeditions
             rewards.Clear();
             oneTimeRewards.Clear();
 
-            PlayerExplorer.dbgmsg += "\n" + WorldGen.GoldTierOre + " | " + TileID.Gold + " : " + WorldGen.oreTier1 + " | " + TileID.Cobalt;
+            PlayerExplorer.dbgmsg += "\n" + WorldGen.SavedOreTiers.Gold + " | " + TileID.Gold + " : " + WorldGen.SavedOreTiers.Cobalt + " | " + TileID.Cobalt;
 
             if (mex != null)
             {
@@ -618,7 +619,7 @@ namespace Expeditions
         /// <param name="stack"></param>
         public void AddDeliverable(ModItem moditem, int stack)
         {
-            AddDeliverable(moditem.item.type, stack);
+            AddDeliverable(moditem.Item.type, stack);
         }
 
         /// <summary>
@@ -775,7 +776,7 @@ namespace Expeditions
         /// <param name="moditem"></param>
         public void AddReward(ModItem moditem)
         {
-            AddReward(moditem.item);
+            AddReward(moditem.Item);
         }
 
         /// <summary>
@@ -792,7 +793,7 @@ namespace Expeditions
         /// <param name="item"></param>
         public void AddRewardOnce(ModItem moditem)
         {
-            oneTimeRewards.Add(moditem.item);
+            oneTimeRewards.Add(moditem.Item);
         }
 
         /// <summary>
@@ -867,7 +868,7 @@ namespace Expeditions
             if (expedition.mex == null)
             { identifier = "Terraria@" + expedition.name; }
             else
-            { identifier = expedition.mex.mod.Name + "@" + (object)(expedition.mex).GetType().Name; }
+            { identifier = expedition.mex.Mod.Name + "@" + (object)(expedition.mex).GetType().Name; }
 
             // Custom runtime independant hash not dependant on runtime
             // I ran it >100000 times with random values and it got no collisions,

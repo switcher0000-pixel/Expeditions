@@ -1,5 +1,7 @@
-﻿using Terraria;
+using Terraria;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace Expeditions.Items
@@ -8,18 +10,19 @@ namespace Expeditions.Items
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Relic Box");
-            DisplayName.SetDefault("Right click to open\n"
-              + "'Its contents, an enigma...'");
+            // DisplayName and Tooltip are now set via localization or DisplayName property
         }
 
         public override void SetDefaults()
         {
-            item.width = 20;
-            item.height = 24;
-            item.maxStack = 30;
-            item.rare = 4;
+            Item.width = 20;
+            Item.height = 24;
+            Item.maxStack = 30;
+            Item.rare = ItemRarityID.LightRed;
         }
+
+        public override LocalizedText DisplayName => base.DisplayName.WithFormatArgs("Relic Box");
+        public override LocalizedText Tooltip => base.Tooltip.WithFormatArgs("Right click to open\n'Its contents, an enigma...'");
 
         public override bool CanRightClick()
         {
@@ -34,12 +37,12 @@ namespace Expeditions.Items
             {
                 foreach (ItemRewardData i in ItemRewardPool.GenerateFullRewards(rare))
                 {
-                    player.QuickSpawnItem(i.itemID, i.stack);
+                    player.QuickSpawnItem(player.GetSource_OpenItem(Type), i.itemID, i.stack);
                 }
             }
             catch (System.Exception e)
             {
-                player.QuickSpawnItem(ItemID.GoldenCrate);
+                player.QuickSpawnItem(player.GetSource_OpenItem(Type), ItemID.GoldenCrate);
             }
         }
     }

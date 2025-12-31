@@ -1,5 +1,6 @@
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace Expeditions.Items
@@ -8,34 +9,35 @@ namespace Expeditions.Items
 	{
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Expeditions Board");
-            Tooltip.SetDefault("View, track and complete expeditions");
+            // DisplayName and Tooltip are now set via localization or DisplayName property
         }
 
         public override void SetDefaults()
 		{
-            item.width = 30;
-            item.height = 36;
-            item.maxStack = 99;
+            Item.width = 30;
+            Item.height = 36;
+            Item.maxStack = 99;
 
-            item.consumable = true;
-            item.createTile = mod.TileType("BountyBoard");
+            Item.consumable = true;
+            Item.createTile = ModContent.TileType<Tiles.BountyBoard>();
 
-            item.useStyle = 1;
-            item.useTurn = true;
-            item.useAnimation = 15;
-            item.useTime = 10;
-            item.autoReuse = true;
-            item.value = Item.sellPrice(0, 0, 0, 20);
+            Item.useStyle = ItemUseStyleID.Swing;
+            Item.useTurn = true;
+            Item.useAnimation = 15;
+            Item.useTime = 10;
+            Item.autoReuse = true;
+            Item.value = Item.sellPrice(0, 0, 0, 20);
         }
+
+        public override LocalizedText DisplayName => base.DisplayName.WithFormatArgs("Expeditions Board");
+        public override LocalizedText Tooltip => base.Tooltip.WithFormatArgs("View, track and complete expeditions");
+
         public override void AddRecipes()
 		{
-			ModRecipe recipe = new ModRecipe(mod);
-            recipe.AddIngredient(ItemID.Wood, 20);
-            recipe.anyWood = true;
+			Recipe recipe = CreateRecipe();
+            recipe.AddRecipeGroup(RecipeGroupID.Wood, 20);
 			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 	}
 }

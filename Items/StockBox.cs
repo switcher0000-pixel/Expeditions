@@ -1,5 +1,7 @@
-﻿using Terraria;
+using Terraria;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace Expeditions.Items
@@ -8,18 +10,19 @@ namespace Expeditions.Items
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Rusted Box");
-            Tooltip.SetDefault("Right click to open\n"
-              + "'Its contents, a mystery...'");
+            // DisplayName and Tooltip are now set via localization or DisplayName property
         }
 
         public override void SetDefaults()
         {
-            item.width = 20;
-            item.height = 20;
-            item.maxStack = 30;
-            item.rare = 1;
+            Item.width = 20;
+            Item.height = 20;
+            Item.maxStack = 30;
+            Item.rare = ItemRarityID.Blue;
         }
+
+        public override LocalizedText DisplayName => base.DisplayName.WithFormatArgs("Rusted Box");
+        public override LocalizedText Tooltip => base.Tooltip.WithFormatArgs("Right click to open\n'Its contents, a mystery...'");
 
         public override bool CanRightClick()
         {
@@ -34,13 +37,13 @@ namespace Expeditions.Items
             {
                 foreach (ItemRewardData i in ItemRewardPool.GenerateFullRewards(rare))
                 {
-                    player.QuickSpawnItem(i.itemID, i.stack);
+                    player.QuickSpawnItem(player.GetSource_OpenItem(Type), i.itemID, i.stack);
                 }
             }
             catch (System.Exception e)
             {
                 //Main.NewTextMultiline(e.ToString());
-                player.QuickSpawnItem(ItemID.IronCrate);
+                player.QuickSpawnItem(player.GetSource_OpenItem(Type), ItemID.IronCrate);
             }
         }
     }

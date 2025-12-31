@@ -14,7 +14,7 @@ namespace Expeditions
             get;
             internal set;
         }
-        public Mod mod
+        public Mod Mod
         {
             get;
             internal set;
@@ -225,7 +225,7 @@ namespace Expeditions
         {
             // Clone the class
             ModExpedition me = (ModExpedition)Activator.CreateInstance(this.GetType());
-            me.mod = this.mod;
+            me.Mod = this.Mod;
             Expedition ex = me.expedition;
 
             ex.name = expedition.name;

@@ -12,6 +12,8 @@ using Terraria.UI;
 using Terraria.GameContent.UI;
 using Terraria.ModLoader;
 using Terraria.DataStructures;
+using Terraria.Audio;
+using ReLogic.Content;
 
 using Expeditions.Quests;
 
@@ -26,10 +28,10 @@ namespace Expeditions
         // Use a boolean to check if the appropriate mod is loaded
         public bool LoadedFKTModSettings = false;
 
-        private UserInterface expeditionUserInterface;
+        internal static UserInterface expeditionUserInterface;
         internal static ExpeditionUI expeditionUI;
 
-        private UserInterface trackerInterface;
+        internal static UserInterface trackerInterface;
         internal static TrackerUI trackerUI;
 
         internal static bool ShowTrackingText = true;
@@ -41,7 +43,7 @@ namespace Expeditions
 
         internal static Dictionary<int, byte> checkedState;
 
-        internal static Texture2D sortingTexture;
+        internal static Asset<Texture2D> sortingTexture;
         internal static Texture2D bountyBoardTexture;
 
         internal static int bookID;
@@ -54,12 +56,6 @@ namespace Expeditions
 
         public Expeditions()
         {
-            Properties = new ModProperties()
-            {
-                Autoload = true,
-                AutoloadGores = true,
-                AutoloadSounds = true
-            };
             // Reset list every time we reload
             expeditionTemplateList = new List<ModExpedition>();
             expeditionActiveList = new List<ModExpedition>();
@@ -72,8 +68,8 @@ namespace Expeditions
             // Load textures
             if (Main.netMode != 2)
             {
-                sortingTexture = GetTexture("UI/Sorting_Categories");
-                bountyBoardTexture = GetTexture("Items/BountyBoard");
+                sortingTexture = ModContent.Request<Texture2D>("Expeditions/UI/Sorting_Categories");
+                bountyBoardTexture = ModContent.Request<Texture2D>("Expeditions/Items/BountyBoard").Value;
             }
 
             if (Main.netMode != 2)
@@ -89,11 +85,11 @@ namespace Expeditions
                 trackerInterface.SetState(trackerUI);
             }
 
-            bookID = ItemType("BountyBook");
-            boardID = ItemType("BountyBoard");
-            voucherID = ItemType("BountyVoucher");
-            stockBox1 = ItemType("StockBox");
-            stockBox2 = ItemType("StockBox2");
+            bookID = ModContent.ItemType<Items.BountyBook>();
+            boardID = ModContent.ItemType<Items.BountyBoard>();
+            voucherID = ModContent.ItemType<Items.BountyVoucher>();
+            stockBox1 = ModContent.ItemType<Items.StockBox>();
+            stockBox2 = ModContent.ItemType<Items.StockBox2>();
 
             // Register the voucher as a new currency
             CustomCurrencySingleCoin c = new CustomCurrencySingleCoin(voucherID, 999L);
@@ -102,21 +98,22 @@ namespace Expeditions
             currencyVoucherID = CustomCurrencyManager.RegisterCurrency(c);
 
 
-            // Add test quests
-            if (DEBUG)
-            {
-                AutoLoadExpeditions(this);
-                //AddExpeditionToList(new ExampleExpedition(), this);
-                //AddExpeditionToList(new HeaderTest(), this);
-            }
+            // Add test quests - enabled for testing
+            // AutoLoadExpeditions will automatically load all ModExpedition classes
+            AutoLoadExpeditions(this);
 
-            LoadedFKTModSettings = ModLoader.GetMod("FKTModSettings") != null;
-            if (LoadedFKTModSettings)
-            {
-                // Needs to be in a method otherwise it throws a namespace error
-                try { LoadModSettings(); }
-                catch { }
-            }
+            // Manual additions not needed - AutoLoadExpeditions handles it
+            // AddExpeditionToList(new ExampleExpedition(), this);
+            // AddExpeditionToList(new HeaderTest(), this);
+
+            // FKTModSettings support commented out - mod not available for 1.4
+            // LoadedFKTModSettings = ModLoader.GetMod("FKTModSettings") != null;
+            // if (LoadedFKTModSettings)
+            // {
+            //     // Needs to be in a method otherwise it throws a namespace error
+            //     try { LoadModSettings(); }
+            //     catch { }
+            // }
         }
         
         #region Autoload support
@@ -173,7 +170,7 @@ namespace Expeditions
             // Make a new set
             if (expeditionTemplateList == null) expeditionTemplateList = new List<ModExpedition>();
 
-            modExpedition.mod = mod;
+            modExpedition.Mod = mod;
             expeditionTemplateList.Add(modExpedition);
             if (Main.netMode == 2) Console.WriteLine("  > Adding Expedition: " + modExpedition.GetType().ToString());
         }
@@ -202,7 +199,7 @@ namespace Expeditions
         {
             foreach(ModExpedition me in GetExpeditionsList())
             {
-                if(me.mod.Equals(mod) && me.GetType().Name.Equals(name))
+                if(me.Mod.Equals(mod) && me.GetType().Name.Equals(name))
                 {
                     return me;
                 }
@@ -261,9 +258,10 @@ namespace Expeditions
         #endregion
 
         #region ModSettings Support
+        /* FKTModSettings not available in 1.4
         private void LoadModSettings()
         {
-            FKTModSettings.ModSetting setting = 
+            FKTModSettings.ModSetting setting =
                 FKTModSettings.ModSettingsAPI.CreateModSettingConfig(this);
             setting.EnableAutoConfig();
 
@@ -291,6 +289,7 @@ namespace Expeditions
                 setting.Get("autoShowHoldTime", ref TrackerUI.ChangeTickMax);
             }
         }
+        */
         #endregion
 
         /// <summary> Reset progress and detach references </summary>
@@ -323,7 +322,7 @@ namespace Expeditions
         /// <summary>
         /// Set the defaults for each expedition
         /// </summary>
-        public override void AddRecipes()
+        public override void PostAddRecipes()
         {
             //initiliase expedition defaults, values reset in PlayerExplorer
             if (Main.netMode == 2) Console.WriteLine("  > Setting Defaults");
@@ -344,80 +343,16 @@ namespace Expeditions
             Items.ItemRewardPool.GenerateRewardPool();
         }
 
-        public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
+        // PostUpdateEverything was removed in 1.4 - this logic should be moved to ModSystem.PostUpdateWorld
+        internal void PostUpdateEverything()
         {
-            bool OtherInterfaceActive = 
-                Main.playerInventory ||
-                Main.LocalPlayer.chest != -1 ||
-                Main.npcShop != 0 ||
-                (
-                    Main.LocalPlayer.talkNPC > 0 &&
-                    ExpeditionUI.viewMode != ExpeditionUI.viewMode_NPC
-                ) ||
-                Main.InReforgeMenu ||
-                Main.InGuideCraftMenu ||
-                Main.gameMenu;
-            
-            int HotBar = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Hotbar"));
-            if (HotBar != -1)
-            {
-                layers.Insert(HotBar, new LegacyGameInterfaceLayer(
-                    "ExpeditionsUITracker",
-                    delegate
-                    {
-                        if (TrackerUI.VisibleWithAlpha)
-                        {
-                            if (!OtherInterfaceActive)
-                            {
-                                trackerInterface.Update(Main._drawInterfaceGameTime);
-                                trackerUI.Draw(Main.spriteBatch);
-                            }
-                        }
-                        return true;
-                    })
-                );
-            }
-
-            //All this stuff is jankyily adapted from ExampleMod
-            //This is getting the mouse layer, and adding the UI just underneath it
-            int MouseTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
-            if (MouseTextIndex != -1)
-            {
-                layers.Insert(MouseTextIndex, new LegacyGameInterfaceLayer(
-                    "ExpeditionsUIPanel",
-                    delegate
-                    {
-                        if (ExpeditionUI.visible)
-                        {
-                            if (OtherInterfaceActive)
-                            {
-                                //close this if other things are opened
-                                CloseExpeditionMenu(true);
-                                if (DEBUG) Main.NewText("Closing via obstruction");
-                            }
-                            else
-                            {
-                                //No idea what this does but the other one draws the UI
-                                expeditionUserInterface.Update(Main._drawInterfaceGameTime);
-                                expeditionUI.Draw(Main.spriteBatch);
-                            }
-                        }
-                        return true;
-                    })
-                );
-            }
-        }
-
-
-
-        public override void PostUpdateInput()
-        {
-            if (LoadedFKTModSettings && !Main.gameMenu)
-            {
-                // Needs to be in a method otherwise it throws a namespace error
-                try { UpdateModSettings(); }
-                catch { }
-            }
+            // FKTModSettings commented out
+            // if (LoadedFKTModSettings && !Main.gameMenu)
+            // {
+            //     // Needs to be in a method otherwise it throws a namespace error
+            //     try { UpdateModSettings(); }
+            //     catch { }
+            // }
             if (Main.netMode == 2) return;
 
             Player player = Main.LocalPlayer;
@@ -750,15 +685,15 @@ namespace Expeditions
             
             Main.playerInventory = false;
             player.sign = -1;
-            Main.npcShop = 0;
+            player.SetTalkNPC(-1); // This closes shops and NPC chat
             Main.npcChatText = "";
-            if (viewMode != ExpeditionUI.viewMode_NPC && 
+            if (viewMode != ExpeditionUI.viewMode_NPC &&
                 player.talkNPC > 0)
             {
-                player.talkNPC = 0;
+                player.SetTalkNPC(-1);
             }
 
-            Main.PlaySound(10, -1, -1, 1); //open menu
+            SoundEngine.PlaySound(SoundID.MenuOpen); //open menu
             expeditionUI.ListRecalculate();
             ExpeditionUI.visible = true;
             ExpeditionUI.viewMode = viewMode;
@@ -774,7 +709,7 @@ namespace Expeditions
             if (DEBUG) Main.NewText("CloseMethod UI");
             Main.npcChatText = "";
 
-            if (!silent) Main.PlaySound(11, -1, -1, 1); //close menu
+            if (!silent) SoundEngine.PlaySound(SoundID.MenuClose); //close menu
             ExpeditionUI.visible = false;
         }
 
@@ -816,11 +751,11 @@ namespace Expeditions
             exp.rare = expedition.difficulty;
             exp.expert = expedition.ctgImportant;
 
-            ItemText.NewText(exp, 1, true, true);
+            PopupText.NewText(PopupTextContext.RegularItemPickup, exp, 1, true, true);
 
             if (!unlockedSoundFrame)
             {
-                Main.PlaySound(SoundID.Chat, Main.LocalPlayer.Center);
+                SoundEngine.PlaySound(SoundID.Chat, Main.LocalPlayer.Center);
                 unlockedSoundFrame = true;
             }
         }
@@ -834,6 +769,7 @@ namespace Expeditions
             if (Main.netMode == 2) return;
 
             int id = Item.NewItem(
+                Main.LocalPlayer.GetSource_Misc("ExpeditionReward"),
                 (int)Main.LocalPlayer.position.X,
                 (int)Main.LocalPlayer.position.Y,
                 Main.LocalPlayer.width,

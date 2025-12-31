@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.UI;
 using ReLogic.Graphics;
@@ -80,11 +81,11 @@ namespace Expeditions
                     Color titleColour = UI.UIColour.GetColourFromRarity(me.expedition.difficulty) * colMod;
                     titleColour.A = textAlpha;
                     Utils.DrawBorderStringFourWay(spriteBatch,
-                        Main.fontMouseText,
+                        FontAssets.MouseText.Value,
                         title,
                         _xPos, startY, titleColour * (textAlpha / 255f), bordC,
                         Vector2.Zero, textScale);
-                    startY += Main.fontMouseText.MeasureString(title).Y * textScale;
+                    startY += FontAssets.MouseText.Value.MeasureString(title).Y * textScale;
                 }
 
                 // Draw the Description
@@ -100,11 +101,11 @@ namespace Expeditions
                     if (description.Length > 0)
                     {
                         Utils.DrawBorderStringFourWay(spriteBatch,
-                            Main.fontMouseText,
+                            FontAssets.MouseText.Value,
                             description,
                             _xPos, startY, mainC * (textAlpha / 255f), bordC * (textAlpha / 255f),
                             Vector2.Zero, textScale);
-                        startY += Main.fontMouseText.MeasureString(
+                        startY += FontAssets.MouseText.Value.MeasureString(
                             description.Substring(0, description.Length - 2) // Remove last \n character
                             ).Y * textScale;
                     }

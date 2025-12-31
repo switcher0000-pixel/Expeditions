@@ -1,0 +1,28 @@
+Items: {
+	StockBox2: {
+		Tooltip: ""
+		DisplayName: Stock Box2
+	}
+
+	StockBox: {
+		Tooltip: ""
+		DisplayName: Stock Box
+	}
+
+	BountyVoucher: {
+		Tooltip: ""
+		DisplayName: Bounty Voucher
+	}
+
+	BountyBook: {
+		Tooltip: ""
+		DisplayName: Bounty Book
+	}
+
+	BountyBoard: {
+		Tooltip: ""
+		DisplayName: Bounty Board
+	}
+}
+
+Tiles.BountyBoard.MapEntry: Bounty Board

@@ -1,4 +1,6 @@
 ﻿using Terraria;
+using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace Expeditions.Items
@@ -7,32 +9,33 @@ namespace Expeditions.Items
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Expedition Log");
-            Tooltip.SetDefault("Manage and track expeditions\n"
-              + "'The joys of discovery!'");
+            // DisplayName and Tooltip are now set via localization or DisplayName property
         }
 
         public override void SetDefaults()
         {
-            item.width = 30;
-            item.height = 36;
-            item.maxStack = 1;
+            Item.width = 30;
+            Item.height = 36;
+            Item.maxStack = 1;
 
-            item.useStyle = 4; // holding up
-            item.useTurn = true;
-            item.useAnimation = 15;
-            item.useTime = 15;
+            Item.useStyle = ItemUseStyleID.HoldUp;
+            Item.useTurn = true;
+            Item.useAnimation = 15;
+            Item.useTime = 15;
 
-            item.rare = 1;
-            item.value = Item.buyPrice(0, 0, 20, 0);
+            Item.rare = ItemRarityID.Blue;
+            Item.value = Item.buyPrice(0, 0, 20, 0);
         }
+
+        public override LocalizedText DisplayName => base.DisplayName.WithFormatArgs("Expedition Log");
+        public override LocalizedText Tooltip => base.Tooltip.WithFormatArgs("Manage and track expeditions\n'The joys of discovery!'");
 
         public override bool CanUseItem(Player player)
         {
             return !ExpeditionUI.visible;
         }
 
-        public override bool UseItem(Player player)
+        public override bool? UseItem(Player player)
         {
             if (player.whoAmI == Main.myPlayer)
             {

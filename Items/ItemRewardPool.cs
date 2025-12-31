@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Terraria;
 using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace Expeditions.Items
 {
@@ -19,13 +20,13 @@ namespace Expeditions.Items
             resourceRewards = new List<int>();
 
             Item item;
-            for (int i = 0; i < Main.itemTexture.Length; i++)
+            for (int i = 0; i < ItemID.Count; i++)
             {
                 try
                 {
                     item = new Item();
                     item.SetDefaults(i);
-                    try { item.modItem.SetDefaults(); } catch { }
+                    // modItem.SetDefaults() removed in 1.4
                     if (item.pick > 0 || // No picks
                         (item.Name.Contains("Key") || Lang.GetItemName(i).Value.Contains("Key")) || // No "keys"
                         item.expert // No "experts" since boss only
@@ -37,7 +38,7 @@ namespace Expeditions.Items
 
                     if (
                             ( // Is a weapon
-                            (item.melee || item.ranged || item.magic || item.summon || item.thrown)
+                            (item.DamageType != DamageClass.Default && item.DamageType != DamageClass.Generic)
                             && item.damage > 0
                             && item.ammo == AmmoID.None
                             )
@@ -123,7 +124,6 @@ namespace Expeditions.Items
                 int mainReward = ItemID.CopperShortsword;
                 item = new Item();
                 item.SetDefaults(mainReward);
-                try { item.modItem.SetDefaults(); } catch { }
 
                 // Limit by rare
                 bool goForTopTier = Main.rand.Next(3) == 0; // 33% chance of going for top rare
@@ -135,7 +135,7 @@ namespace Expeditions.Items
                     mainReward = mainRewards[Main.rand.Next(mainRewards.Count)];
                     item = new Item();
                     item.SetDefaults(mainReward);
-                    try { item.modItem.SetDefaults(); } catch { }
+                    // modItem.SetDefaults() removed in 1.4
 
                     int lowRare = 0;
                     if (goForTopTier) lowRare = rare; // Only the best
@@ -204,7 +204,7 @@ namespace Expeditions.Items
                 {
                     item = new Item();
                     item.SetDefaults(sideReward);
-                    try { item.modItem.SetDefaults(); } catch { }
+                    // modItem.SetDefaults() removed in 1.4
                     
                     // Try random 511 times
                     for (int j = 0; j < 511; j++)
@@ -212,7 +212,7 @@ namespace Expeditions.Items
                         sideReward = resourceRewards[Main.rand.Next(resourceRewards.Count)];
                         item = new Item();
                         item.SetDefaults(sideReward);
-                        try { item.modItem.SetDefaults(); } catch { }
+                        // modItem.SetDefaults() removed in 1.4
 
                         // No items above this value in prehard (eg. wizard and pirate items)
                         if (item.value > Item.buyPrice(0, 4) && !Main.hardMode) continue;

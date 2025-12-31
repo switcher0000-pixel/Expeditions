@@ -1,12 +1,11 @@
-author = Flashkirby99
-version = 2.3.1
 displayName = Expeditions Base
-
-weakReferences = FKTModSettings
-
+author = Flashkirby99
+version = 2.4.0
 homepage = http://forums.terraria.org/index.php?threads/expeditions-mod-modular-quest-system.52517/
-hideCode = false
-hideResources = false
-includeSource = true
-buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, *.suo, *.sln, .git, *.md, .git\*, *.fw.png *.TMP
-includePDB = false
+
+side = Both
+dllReferences =
+modReferences =
+
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, *.suo, *.sln, .git\*, *.md, *.TMP
+includePDB = true

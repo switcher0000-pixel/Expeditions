@@ -175,9 +175,11 @@ namespace Expeditions
         /// <param name="nextSlot">Shop's next slot. This will get incremented automagically. </param>
         /// <param name="itemID">Item type being sold. </param>
         /// <param name="price">Number of coupons needed. </param>
+        [Obsolete("Shop system changed in 1.4 - use NPCShop.ModifyShop instead")]
         public static void AddShopItemVoucher(Chest shop, ref int nextSlot, int itemID, int price)
         {
-            NPCExplore.AddVoucherPricedItem(shop, ref nextSlot, itemID, price);
+            // Deprecated: Shop system completely changed in tModLoader 1.4
+            // Use ModifyShop override in GlobalNPC instead
         }
 
 

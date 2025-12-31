@@ -39,10 +39,10 @@ namespace Expeditions.Quests
             item.SetDefaults(ItemID.CobaltBar);
             item.SetNameOverride("Cobalt or Palladium Bar");
             expedition.AddReward(item);
-            AddRewardItem(WorldGen.copperBar);
-            AddRewardItem(WorldGen.ironBar);
-            AddRewardItem(WorldGen.silverBar);
-            AddRewardItem(WorldGen.goldBar);
+            AddRewardItem(ItemID.CopperBar);
+            AddRewardItem(ItemID.IronBar);
+            AddRewardItem(ItemID.SilverBar);
+            AddRewardItem(ItemID.GoldBar);
         }
         public override string Description(bool complete)
         {
@@ -73,10 +73,14 @@ namespace Expeditions.Quests
 
         public override bool CheckPrerequisites(Player player, ref bool cond1, ref bool cond2, ref bool cond3, bool condCount)
         {
-            if (WorldExplore.IsCurrentDaily(expedition)) return true;
-            if (Expeditions.DEBUG)
-            { return API.InInventory[ItemID.FishingSeaweed]; }
-            return false;
+            // Always available for testing
+            return true;
+
+            // Original code:
+            // if (WorldExplore.IsCurrentDaily(expedition)) return true;
+            // if (Expeditions.DEBUG)
+            // { return API.InInventory[ItemID.FishingSeaweed]; }
+            // return false;
         }
 
         public override void PreCompleteExpedition(List<Item> rewards, List<Item> deliveredItems)
@@ -133,7 +137,7 @@ namespace Expeditions.Quests
         {
             cond3 = true;
             if (!Expeditions.DEBUG) return;
-            for (int i = 0; i < recipe.requiredItem.Length; i++)
+            for (int i = 0; i < recipe.requiredItem.Count; i++)
             {
                 if (recipe.requiredItem[i] == null || recipe.requiredItem[i].stack <= 0) continue;
                 Main.NewText(item.Name + " from " + recipe.requiredItem[i].Name,
@@ -148,7 +152,7 @@ namespace Expeditions.Quests
 
         public override void OnKillTile(int x, int y, int type, Player player, ref bool cond1, ref bool cond2, ref bool cond3, bool condCount)
         {
-            if (Expeditions.DEBUG) Main.NewText("Break tile " + Main.tile[x, y].type,
+            if (Expeditions.DEBUG) Main.NewText("Break tile " + Main.tile[x, y].TileType,
                 Expedition.textColour.R, Expedition.textColour.G, Expedition.textColour.B);
         }
     }
