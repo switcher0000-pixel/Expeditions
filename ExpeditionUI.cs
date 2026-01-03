@@ -67,8 +67,6 @@ namespace Expeditions
         public List<ModExpedition> filterList;
         public List<ModExpedition> sortedList;
 
-        private bool previewMode { get { return viewMode == viewMode_Menu; } }
-
         public override void OnInitialize()
         {
             filterList = new List<ModExpedition>(Expeditions.GetExpeditionsList());
@@ -378,8 +376,7 @@ namespace Expeditions
                 SoundEngine.PlaySound(SoundID.Camera);
                 return;
             }
-            if (!previewMode &&
-                (currentME.expedition.ConditionsMet()))
+            if (currentME.expedition.ConditionsMet())
             {
                 currentME.expedition.CompleteExpedition(false);
                 SoundEngine.PlaySound(SoundID.MenuTick);
@@ -491,13 +488,7 @@ namespace Expeditions
                 {
                     _trackButton.SetText((currentME.expedition.trackingActive ? "Untrack" : "Track"));
                     _trackButton.Top.Set(yBottom + 10f, 0f);
-                    if (!previewMode)
-                    {
-                        _completeButton.SetText((currentME.expedition.ConditionsMet() ? "Complete" : "In Progress"));
-                    }else
-                    {
-                        _completeButton.SetText("");
-                    }
+                    _completeButton.SetText((currentME.expedition.ConditionsMet() ? "Complete" : "In Progress"));
                     _completeButton.Top.Set(yBottom + 10f, 0f);
                     yBottom += 10;
                 }
