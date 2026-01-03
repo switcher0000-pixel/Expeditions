@@ -275,12 +275,28 @@ namespace Expeditions
 
         private void IncrementIndexClick(UIMouseEvent evt, UIElement listeningElement)
         {
-            _scrollBar.Value++;
+            if (_scrollBar.MaxValue <= 0) return;
+            if (_scrollBar.Value >= _scrollBar.MaxValue)
+            {
+                _scrollBar.Value = _scrollBar.MinValue;
+            }
+            else
+            {
+                _scrollBar.Value++;
+            }
             //UpdateIndex();
         }
         private void DecrementIndexClick(UIMouseEvent evt, UIElement listeningElement)
         {
-            _scrollBar.Value--;
+            if (_scrollBar.MaxValue <= 0) return;
+            if (_scrollBar.Value <= _scrollBar.MinValue)
+            {
+                _scrollBar.Value = _scrollBar.MaxValue;
+            }
+            else
+            {
+                _scrollBar.Value--;
+            }
             //UpdateIndex();
         }
 
