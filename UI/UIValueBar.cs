@@ -49,6 +49,8 @@ namespace Expeditions.UI
             {
                 if (value < _minValue) value = _minValue;
                 _maxValue = value;
+                // Clamp current value if it exceeds new max
+                if (_index > _maxValue) _index = _maxValue;
             }
         }
         public UIValueBar(int minValue, int maxValue)
@@ -64,14 +66,15 @@ namespace Expeditions.UI
 
         public override void LeftMouseDown(UIMouseEvent evt)
         {
-            base.LeftMouseDown(evt);
-            _dragging = true;
+            // Intentionally empty - handled manually in Update() due to tModLoader bug
         }
         public override void LeftMouseUp(UIMouseEvent evt)
         {
-            base.LeftMouseUp(evt);
-            _dragging = false;
+            // Intentionally empty - handled manually in Update() due to tModLoader bug
         }
+
+        // Manual mouse tracking for click detection workaround (tModLoader 1.4 bug)
+        private bool _wasMouseDown = false;
 
         public void SetBlipColours(Color[] colours, int daily)
         {
@@ -85,11 +88,49 @@ namespace Expeditions.UI
 
         public override void Update(GameTime gameTime)
         {
-            if (_dragging && ContainsPoint(Main.MouseScreen))
-            {
-                _dragVal = (int)Main.MouseScreen.X - (int)GetDimensions().X;
-            }
             base.Update(gameTime);
+
+            // Manual click detection workaround for tModLoader 1.4 UserInterface bug
+            // Same pattern as UITextButton
+            if (IsMouseHovering)
+            {
+                Main.LocalPlayer.mouseInterface = true;
+
+                // Mouse just pressed - start dragging
+                if (Main.mouseLeft && !_wasMouseDown)
+                {
+                    _dragging = true;
+                }
+
+                // While dragging, update drag value
+                if (_dragging && ContainsPoint(Main.MouseScreen))
+                {
+                    _dragVal = (int)Main.MouseScreen.X - (int)GetDimensions().X;
+                }
+
+                // Mouse just released - stop dragging and fire event
+                if (_wasMouseDown && !Main.mouseLeft)
+                {
+                    _dragging = false;
+                    base.LeftMouseUp(new UIMouseEvent(this, Main.MouseScreen));
+                }
+
+                _wasMouseDown = Main.mouseLeft;
+            }
+            else
+            {
+                // Mouse moved off while dragging - keep updating if still held
+                if (_dragging && Main.mouseLeft && ContainsPoint(Main.MouseScreen))
+                {
+                    _dragVal = (int)Main.MouseScreen.X - (int)GetDimensions().X;
+                }
+                // Mouse released outside - cancel drag
+                if (_dragging && !Main.mouseLeft)
+                {
+                    _dragging = false;
+                }
+                _wasMouseDown = false;
+            }
         }
 
         protected override void DrawSelf(SpriteBatch spriteBatch)

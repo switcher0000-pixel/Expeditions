@@ -75,7 +75,9 @@ namespace Expeditions.UI
 
         public override void LeftClick(UIMouseEvent evt)
         {
-            base.LeftClick(evt);
+            // Intentionally empty - we handle clicks manually in Update()
+            // to work around tModLoader 1.4 UserInterface bug #1930
+            // Blocking native LeftClick prevents double-firing
         }
 
         private bool _wasMouseDown = false;
@@ -94,8 +96,8 @@ namespace Expeditions.UI
                 // Detect click on release (like standard button behavior)
                 if (_wasMouseDown && !Main.mouseLeft)
                 {
-                    // Manually trigger the click event
-                    LeftClick(new UIMouseEvent(this, Main.MouseScreen));
+                    // Manually trigger the click event (bypass our override, call base directly)
+                    base.LeftClick(new UIMouseEvent(this, Main.MouseScreen));
                     SoundEngine.PlaySound(SoundID.MenuTick);
                 }
                 _wasMouseDown = Main.mouseLeft;

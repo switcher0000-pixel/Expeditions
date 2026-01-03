@@ -10,6 +10,7 @@ using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.UI;
 using Expeditions.UI;
+using UIToggleImage = Expeditions.UI.UIToggleImageFixed;
 using ReLogic.Content;
 
 using System.Linq;
@@ -55,6 +56,7 @@ namespace Expeditions
             get
             {
                 if (_scrollBar.Value < 1) return null;
+                if (_scrollBar.Value - 1 >= sortedList.Count) return null; // Bounds check
                 return sortedList[_scrollBar.Value - 1];
             }
         }
