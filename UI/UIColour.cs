@@ -12,6 +12,7 @@ namespace Expeditions.UI
         public readonly static Color White = new Color(255, 255, 255);
         public readonly static Color Blue = new Color(150, 150, 255);
         public readonly static Color Green = new Color(150, 255, 150);
+        public readonly static Color CompletedBackground = new Color(90, 140, 100, 200);
         public readonly static Color Orange = new Color(255, 200, 150);
         public readonly static Color LightRed = new Color(255, 150, 150);
         public readonly static Color Pink = new Color(255, 150, 255);

@@ -404,6 +404,10 @@ namespace Expeditions
 
             if (_scrollBar.Value > 0)
             {
+                bool isCompleted = currentME.expedition.completed;
+                _expeditionPanel.BackgroundColor = isCompleted ? UIColour.CompletedBackground : UIColour.backgroundColour;
+                _navigationPanel.BackgroundColor = UIColour.backgroundColour;
+
                 float yBottom = 0;
                 _titleHeader.SetText(currentME.expedition.name + (currentME.expedition.completed ? " (Completed)" : "") + (Expeditions.DEBUG?" #"+Expedition.GetHashID(currentME.expedition).ToString("X"):""));
                 yBottom += _titleHeader.TextHeight + 10;
@@ -502,6 +506,9 @@ namespace Expeditions
             }
             else
             {
+                _expeditionPanel.BackgroundColor = UIColour.backgroundColour;
+                _navigationPanel.BackgroundColor = UIColour.backgroundColour;
+
                 _titleHeader.SetText("No Expeditions Posted");
                 _headImage.SetImage(ModContent.Request<Texture2D>("Expeditions/Items/BountyBoard"));
                 _description.SetText("");
