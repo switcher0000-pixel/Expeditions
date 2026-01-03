@@ -226,6 +226,7 @@ namespace Expeditions
             {
                 // Set main list to loaded
                 CopyLocalExpeditionsToMain();
+                GiveBountyBookIfEnabled();
             }
 
             if(Main.netMode == 1)
@@ -235,6 +236,25 @@ namespace Expeditions
 
             // Reset list items
             Expeditions.WorldInit();
+        }
+
+        private void GiveBountyBookIfEnabled()
+        {
+            if (Player.whoAmI != Main.myPlayer) return;
+
+            var config = ModContent.GetInstance<ExpeditionsConfig>();
+            if (config == null || !config.StartWithBountyBook) return;
+
+            int bookType = ModContent.ItemType<Items.BountyBook>();
+            if (Player.HasItem(bookType)) return;
+
+            for (int i = 0; i < Player.inventory.Length; i++)
+            {
+                if (Player.inventory[i] == null || !Player.inventory[i].IsAir) continue;
+                Player.inventory[i].SetDefaults(bookType);
+                Player.inventory[i].stack = 1;
+                return;
+            }
         }
 
         internal void RequestDailyQuest()
