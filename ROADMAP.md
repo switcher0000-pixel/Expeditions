@@ -41,7 +41,7 @@ Based on Terraria wiki progression guides and common player pain points, we've i
 
 #### Priority Tier 1: Critical Gaps (Fixes Common Pain Points)
 
-**1. "First Defense" (AC tier)**
+✅ **1. "First Defense" (AC tier) - IMPLEMENTED**
 - **Problem:** Players don't understand armor tier progression or when to upgrade
 - **Quest Goals:** Craft a full set of metal armor (copper/iron/silver tier)
 - **Teaches:** Defense stat importance, set bonuses exist, gear progression matters
