@@ -27,7 +27,7 @@ namespace Expeditions
         public const int viewMode_Menu = 2;
 
         //First Panel
-        private const int _navPanelWidth = 400;
+        private const int _navPanelWidth = 460;
         public static bool visible = false;
         public static int viewMode = 0;
         private UIPanel _navigationPanel;
@@ -50,6 +50,7 @@ namespace Expeditions
         private List<ItemSlot> _rewardItems = new List<ItemSlot>();
         private UITextButton _trackButton;
         private UITextButton _completeButton;
+        private UITextWrap _coreLabel;
 
         private ModExpedition currentME
         {
@@ -95,8 +96,8 @@ namespace Expeditions
             AppendTextButton("Next", 200, 16, new MouseEvent(IncrementIndexClick));
             AppendTextButton("Prev", 80, 16, new MouseEvent(DecrementIndexClick));
             _navigationPanel.Append(_scrollBar);
-            AppendCategoryButtonsLine1(_navPanelWidth - 150, 10);
-            AppendCategoryButtonsLine2(_navPanelWidth - 150, 46);
+            AppendCategoryButtonsLine1(_navPanelWidth - 186, 10);
+            AppendCategoryButtonsLine2(_navPanelWidth - 186, 46);
             _indexText = AppendText("000/000", 156, 16, Color.White, true);
             base.Append(_navigationPanel);
 
@@ -143,6 +144,7 @@ namespace Expeditions
             _expeditionPanel.Append(_rewardSlots);
             _trackButton = AppendTextButtonPan2("Un/track", 20, 0, new MouseEvent(ToggleTrackedClicked));
             _completeButton = AppendTextButtonPan2("Complete", 120, 0, new MouseEvent(CompleteClicked));
+            _coreLabel = AppendTextPan2("", 0, 0, Color.White, Color.Black, false);
             base.Append(_expeditionPanel);
         }
 
@@ -207,19 +209,28 @@ namespace Expeditions
         private void AppendCategoryButtonsLine1(float x, float y)
         {
             UIElement uIElement = new UIElement();
-            // Only make container as wide as needed (4 buttons × 36px = 144px) instead of full width
-            uIElement.Width.Set(144f, 0f);
+            // Only make container as wide as needed (5 buttons × 36px = 180px) instead of full width
+            uIElement.Width.Set(180f, 0f);
             uIElement.Height.Set(32f, 0f);
             uIElement.Left.Set(x, 0f);
             uIElement.Top.Set(y, 0f);
             var texture = ModContent.Request<Texture2D>("Terraria/Images/UI/Achievement_Categories", AssetRequestMode.ImmediateLoad);
-            for (int j = 0; j < 4; j++)
+            for (int j = 0; j < 5; j++)
             {
-                UIToggleImage uIToggleImage = new UIToggleImage(texture, 32, 32, new Point(34 * j, 0), new Point(34 * j, 34));
+                int frameX = 34 * (j <= 3 ? j : 3);
+                UIToggleImage uIToggleImage = new UIToggleImage(texture, 32, 32, new Point(frameX, 0), new Point(frameX, 34));
                 // Position relative to container now, not panel
                 uIToggleImage.Left.Set((float)(j * 36), 0f);
-                uIToggleImage.SetState(true);
-                uIToggleImage.OnLeftClick += new UIElement.MouseEvent(this.FilterList);
+                if (j == 4)
+                {
+                    uIToggleImage.SetState(false);
+                    uIToggleImage.OnLeftClick += new UIElement.MouseEvent(this.FilterList);
+                }
+                else
+                {
+                    uIToggleImage.SetState(true);
+                    uIToggleImage.OnLeftClick += new UIElement.MouseEvent(this.FilterList);
+                }
                 this._categoryButtons.Add(uIToggleImage);
                 uIElement.Append(uIToggleImage);
             }
@@ -228,15 +239,16 @@ namespace Expeditions
         private void AppendCategoryButtonsLine2(float x, float y)
         {
             UIElement uIElement = new UIElement();
-            // Only make container as wide as needed (4 buttons × 36px = 144px) instead of full width
-            uIElement.Width.Set(144f, 0f);
+            // Only make container as wide as needed (5 buttons × 36px = 180px) instead of full width
+            uIElement.Width.Set(180f, 0f);
             uIElement.Height.Set(32f, 0f);
             uIElement.Left.Set(x, 0f);
             uIElement.Top.Set(y, 0f);
             Asset<Texture2D> texture = Expeditions.sortingTexture;
-            for (int j = 0; j < 4; j++)
+            for (int j = 0; j < 5; j++)
             {
-                UIToggleImage uIToggleImage = new UIToggleImage(texture, 32, 32, new Point(34 * j, 0), new Point(34 * j, 34));
+                int frameX = 34 * (j <= 3 ? j : 3);
+                UIToggleImage uIToggleImage = new UIToggleImage(texture, 32, 32, new Point(frameX, 0), new Point(frameX, 34));
                 // Position relative to container now, not panel
                 uIToggleImage.Left.Set((float)(j * 36), 0f);
                 uIToggleImage.SetState(false); //These are disabled by default
@@ -253,7 +265,10 @@ namespace Expeditions
                 }
                 else
                 {
-                    uIToggleImage.OnLeftClick += new UIElement.MouseEvent(this.FilterList);
+                    if (j != 4)
+                    {
+                        uIToggleImage.OnLeftClick += new UIElement.MouseEvent(this.FilterList);
+                    }
                 }
                 this._categoryButtons.Add(uIToggleImage);
                 uIElement.Append(uIToggleImage);
@@ -334,10 +349,10 @@ namespace Expeditions
         private void SortAlphabetical(UIMouseEvent evt, UIElement listeningElement)
         {
             /*
-            if (this._categoryButtons[6].IsOn)
-            { this._categoryButtons[7].SetState(false); }
+            if (this._categoryButtons[7].IsOn)
+            { this._categoryButtons[6].SetState(false); }
             else
-            { this._categoryButtons[7].SetState(true); }
+            { this._categoryButtons[6].SetState(true); }
             */
             ListRecalculate();
         }
@@ -506,7 +521,22 @@ namespace Expeditions
                     _trackButton.Top.Set(yBottom + 10f, 0f);
                     _completeButton.SetText((currentME.expedition.ConditionsMet() ? "Complete" : "In Progress"));
                     _completeButton.Top.Set(yBottom + 10f, 0f);
+                    if (currentME.expedition.isCore)
+                    {
+                        _coreLabel.SetText("Core");
+                        float labelWidth = FontAssets.MouseText.Value.MeasureString("Core").X;
+                        _coreLabel.Left.Set(_expPanelWidth - 16f - labelWidth, 0f);
+                        _coreLabel.Top.Set(yBottom + 10f, 0f);
+                    }
+                    else
+                    {
+                        _coreLabel.SetText("");
+                    }
                     yBottom += 10;
+                }
+                if (currentME.expedition.completed && !currentME.expedition.repeatable)
+                {
+                    _coreLabel.SetText("");
                 }
 
                 _expeditionPanel.Height.Set(32 + yBottom, 0);
@@ -526,6 +556,7 @@ namespace Expeditions
                 _rewardSlots.Items = null;
                 _trackButton.SetText("");
                 _completeButton.SetText("");
+                _coreLabel.SetText("");
 
                 _expeditionPanel.Height.Set(32 + _titleHeader.TextHeight, 0);
             }
@@ -565,10 +596,11 @@ namespace Expeditions
                     if (e.ctgExplore && this._categoryButtons[2].IsOn) { anyMatch++; } // Explorer Filter
                     if (e.ctgImportant && this._categoryButtons[3].IsOn) { anyMatch++; } // Challenger Filter
                     if (anyMatch == 0) continue;
+                    if (this._categoryButtons[4].IsOn && !e.isCore) { continue; } // Core Filter
                     // line 2
-                    if (e.completed && !this._categoryButtons[4].IsOn) { continue; } // Completed FIlter
-                    if (!e.repeatable && this._categoryButtons[5].IsOn) { continue; } // Repeated FIlter
-                    if (!e.trackingActive && this._categoryButtons[7].IsOn) { continue; } // Tracking FIlter
+                    if (e.completed && !this._categoryButtons[5].IsOn) { continue; } // Completed FIlter
+                    if (!e.repeatable && this._categoryButtons[6].IsOn) { continue; } // Repeated FIlter
+                    if (!e.trackingActive && this._categoryButtons[8].IsOn) { continue; } // Tracking FIlter
                     if (!e.PrerequisitesMet()) continue;
                     // NPC head highlight
                     if (_filterByHead > 0 && e.npcHead != _filterByHead) { continue; } // Ignore non-matching
@@ -577,7 +609,7 @@ namespace Expeditions
 
                 // sort by these
                 int sortMode = 1; //SortByDifficulty (default)
-                if (this._categoryButtons[6].IsOn) sortMode = 0; //Srot by ALphabet
+                if (this._categoryButtons[7].IsOn) sortMode = 0; //Srot by ALphabet
 
                 switch (sortMode)
                 {
@@ -741,21 +773,27 @@ namespace Expeditions
                         case 2:
                             text = "Explorer";
                             break;
-                        case 3:
-                            text = "Challenger";
-                            break;
-                        case 4:
-                            text = "Show Completed";
-                            break;
-                        case 5:
-                            text = "Only Repeatables";
-                            break;
-                        case 6:
-                            text = "Sort by A-Z";
-                            break;
-                        case 7:
-                            text = "Only Tracked";
-                            break;
+                    case 3:
+                        text = "Challenger";
+                        break;
+                    case 4:
+                        text = "Core";
+                        break;
+                    case 5:
+                        text = "Show Completed";
+                        break;
+                    case 6:
+                        text = "Only Repeatables";
+                        break;
+                    case 7:
+                        text = "Sort by A-Z";
+                        break;
+                    case 8:
+                        text = "Only Tracked";
+                        break;
+                    case 9:
+                        text = "Reserved";
+                        break;
                         default:
                             text = "None";
                             break;

@@ -59,6 +59,8 @@ namespace Expeditions
         public bool ctgCollect = false;
         /// <summary>Category: Involves defeating monsters</summary>
         public bool ctgSlay = false;
+        /// <summary>Category: Core questline (namespace-based for content mods)</summary>
+        public bool isCore = false;
         /// <summary>Tracks a conditional, will be displayed when conditionDescription1 is not empty</summary>
         public bool condition1Met = false;
         /// <summary>Tracks a conditional, will be displayed when conditionDescription2 is not empty</summary>

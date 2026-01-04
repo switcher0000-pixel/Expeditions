@@ -23,6 +23,11 @@ namespace Expeditions
         {
             this.expedition = new Expedition();
             this.expedition.mex = this;
+            string ns = GetType().Namespace;
+            if (!string.IsNullOrEmpty(ns) && ns.Contains(".Quests.Core"))
+            {
+                this.expedition.isCore = true;
+            }
         }
 
         /// <summary>
@@ -242,6 +247,7 @@ namespace Expeditions
             ex.ctgExplore = expedition.ctgExplore;
             ex.ctgCollect = expedition.ctgCollect;
             ex.ctgSlay = expedition.ctgSlay;
+            ex.isCore = expedition.isCore;
 
             ex.condition1Met = expedition.condition1Met;
             ex.condition2Met = expedition.condition2Met;
