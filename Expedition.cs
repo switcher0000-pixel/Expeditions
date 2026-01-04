@@ -101,6 +101,9 @@ namespace Expeditions
         /// <summary> All items gathered </summary>
         private bool trackItems = false;
         
+        /// <summary> Quest ready to complete (all conditions + items met) </summary>
+        private bool trackReadyToComplete = false;
+
         private bool lastPrereq = true; // The last result of checkPrerequisites
 
         /// <summary> Gets the description of this expedition </summary>
@@ -282,7 +285,25 @@ namespace Expeditions
                 }
             }
 
-            return (mex == null || checkConditions) && meetc;
+            // Check if quest just became ready to complete
+            bool isReadyToComplete = (mex == null || checkConditions) && meetc;
+            if (!trackReadyToComplete && isReadyToComplete)
+            {
+                // Quest just became completable - send notification
+                if (showText)
+                {
+                    Main.NewText("Expeditions: '" + name + "' is ready to be completed!", textColour.R, textColour.G, textColour.B);
+                }
+                TrackerUI.recentChangeTick = TrackerUI.ChangeTickMax;
+                trackReadyToComplete = true;
+            }
+            else if (trackReadyToComplete && !isReadyToComplete)
+            {
+                // Quest is no longer completable
+                trackReadyToComplete = false;
+            }
+
+            return isReadyToComplete;
         }
         /// <summary>
         /// Checks against arbitrary conditions to see if visible. 
@@ -512,6 +533,7 @@ namespace Expeditions
                 trackCondition = false;
                 trackingActive = false;
                 trackItems = false;
+                trackReadyToComplete = false;
             }
             else
             {
@@ -676,6 +698,7 @@ namespace Expeditions
             trackCondition = false;
             trackingActive = false;
             trackItems = false;
+            trackReadyToComplete = false;
             condition1Met = false;
             condition2Met = false;
             condition3Met = false;
